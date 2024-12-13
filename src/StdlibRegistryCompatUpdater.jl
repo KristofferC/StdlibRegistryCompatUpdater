@@ -44,8 +44,9 @@ function update_compat_for_stdlib((stdlib_uuid, stdlib_name)::Pair{UUID, String}
     if !isdir(joinpath(reg.path, ".git"))
         error("needs a git registry")
     end
-    depends_on_stdlib = false
+
     for (uuid, entry) in reg
+        depends_on_stdlib = false
         entry.name == "julia" && continue
         info = Registry.registry_info(entry)
         for (vr, deps) in info.deps
