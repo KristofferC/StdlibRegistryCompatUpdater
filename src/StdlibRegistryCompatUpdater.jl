@@ -81,4 +81,20 @@ function update_compat_for_stdlib((stdlib_uuid, stdlib_name)::Pair{UUID, String}
 
 end
 
+# StdlibRegistryCompatUpdater.register("LazyArtifacts", "/home/vchuravy/src/LazyArtifacts", "https://github.com/JuliaPackaging/LazyArtifacts.jl")
+
+function register(stdlib_name::String, package_path::String, package_repo::String="https://github.com/JuliaLang/$(stdlib_name).jl")
+    reg = Pkg.Registry.reachable_registries()[1]
+    if !isdir(joinpath(reg.path, ".git"))
+        error("needs a git registry")
+    end
+    if !endswith(package_repo, ".git")
+        package_repo *= ".git"
+    end
+    tree_hash = bytes2hex(Pkg.GitTools.tree_hash(package_path))
+    project_path = joinpath(package_path, "Project.toml")
+    @info "Registering..." package_repo project_path tree_hash
+    RegistryTools.register(package_repo, project_path, tree_hash)
+end
+
 end # module StdlibRegistryCompatUpdater
